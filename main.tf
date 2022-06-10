@@ -1,9 +1,3 @@
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# DEPLOY A CLOUD SQL CLUSTER
-# This module deploys a Cloud SQL MySQL cluster. The cluster is managed by Google and automatically handles leader
-# election, replication, failover, backups, patching, and encryption.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 terraform {
   # This module is now only being tested with Terraform 1.0.x. However, to make upgrading easier, we are setting
   # 0.12.26 as the minimum version, as that version added support for required_providers with source URLs, making it
@@ -11,17 +5,9 @@ terraform {
   required_version = ">= 0.12.26"
 }
 
-# ------------------------------------------------------------------------------
-# PREPARE LOCALS
-#
-# NOTE: Due to limitations in terraform and heavy use of nested sub-blocks in the resource,
-# we have to construct some of the configuration values dynamically
-# ------------------------------------------------------------------------------
-
 locals {
   # Determine the engine type
   is_postgres = replace(var.engine, "POSTGRES", "") != var.engine
-  is_mysql    = replace(var.engine, "MYSQL", "") != var.engine
 
   # Calculate actuals, so we get expected behavior for each engine
   actual_binary_log_enabled     = local.is_postgres ? false : var.mysql_binary_log_enabled
@@ -31,11 +17,7 @@ locals {
 
 # ------------------------------------------------------------------------------
 # CREATE THE MASTER INSTANCE
-#
-# NOTE: We have multiple google_sql_database_instance resources, based on
-# HA and replication configuration options.
 # ------------------------------------------------------------------------------
-
 resource "google_sql_database_instance" "master" {
   depends_on = [null_resource.dependency_getter]
 
