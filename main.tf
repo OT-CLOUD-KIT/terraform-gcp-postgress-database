@@ -1,12 +1,8 @@
 terraform {
-  # This module is now only being tested with Terraform 1.0.x. However, to make upgrading easier, we are setting
-  # 0.12.26 as the minimum version, as that version added support for required_providers with source URLs, making it
-  # forwards compatible with 1.0.x code.
   required_version = ">= 0.12.26"
 }
 
 locals {
-  # Determine the engine type
   is_postgres = replace(var.engine, "POSTGRES", "") != var.engine
 
   # Calculate actuals, so we get expected behavior for each engine
@@ -85,9 +81,6 @@ resource "google_sql_database_instance" "master" {
     user_labels = var.custom_labels
   }
 
-  # Default timeouts are 10 minutes, which in most cases should be enough.
-  # Sometimes the database creation can, however, take longer, so we
-  # increase the timeouts slightly.
   timeouts {
     create = var.resource_timeout
     delete = var.resource_timeout
@@ -122,21 +115,13 @@ resource "google_sql_user" "default" {
   password = var.master_user_password
 }
 
-# ------------------------------------------------------------------------------
-# SET MODULE DEPENDENCY RESOURCE
-# This works around a terraform limitation where we can not specify module dependencies natively.
-# See https://github.com/hashicorp/terraform/issues/1178 for more discussion.
-# By resolving and computing the dependencies list, we are able to make all the resources in this module depend on the
-# resources backing the values in the dependencies list.
-# ------------------------------------------------------------------------------
-
 resource "null_resource" "dependency_getter" {
   provisioner "local-exec" {
     command = "echo ${length(var.dependencies)}"
   }
 }
 
-# ------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # CREATE THE FAILOVER REPLICA
 # ------------------------------------------------------------------------------
 
