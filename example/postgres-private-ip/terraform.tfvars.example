@@ -1,0 +1,9 @@
+project_id                = "example-project"
+region                    = "us-central1"
+instance_name             = "payments-prod-postgres"
+database_name             = "payments"
+database_user             = "payments_app"
+private_network_self_link = "projects/example-project/global/networks/shared-vpc"
+kms_key_name              = null
+
+# Supply database_password securely through TF_VAR_database_password.
